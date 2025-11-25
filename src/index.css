@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  /* box-sizing: border-box; */
+  font-family: "Assistant", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+}
+
+
+@font-face {
+  font-family: "Kepler Std Extended Display";
+  src: url("/fonts/KeplerStd-ExtendedDisplay.woff2") format("woff2"),
+       url("/fonts/KeplerStd-ExtendedDisplay.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+
