@@ -145,16 +145,8 @@ const UserProvider = ({ children }) => {
       );
 
       if (response.data.ok) {
-        // Update local state with backend response
-        setUser((prevUser) => {
-          if (!prevUser) return prevUser;
-          const updatedUser = {
-            ...prevUser,
-            wishlist: [...(prevUser.wishlist || []), productId],
-          };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
-          return updatedUser;
-        });
+        // Fetch fresh wishlist to stay in sync with backend
+        await fetchWishlist();
         return { success: true, message: response.data.message };
       }
     } catch (error) {
@@ -186,16 +178,8 @@ const UserProvider = ({ children }) => {
       );
 
       if (response.data.ok) {
-        // Update local state
-        setUser((prevUser) => {
-          if (!prevUser) return prevUser;
-          const updatedWishlist = (prevUser.wishlist || []).filter(
-            (id) => id.toString() !== productId.toString()
-          );
-          const updatedUser = { ...prevUser, wishlist: updatedWishlist };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
-          return updatedUser;
-        });
+        // Fetch fresh wishlist to stay in sync with backend
+        await fetchWishlist();
         return { success: true, message: response.data.message };
       }
     } catch (error) {
@@ -217,10 +201,12 @@ const UserProvider = ({ children }) => {
   //  CHECK IF IN WISHLIST
   // ------------------------------
   const isInWishlist = (productId) => {
-    return (
-      user?.wishlist?.some((id) => id.toString() === productId.toString()) ||
-      false
-    );
+    if (!user?.wishlist) return false;
+    return user.wishlist.some((item) => {
+      // Handle both object and ID formats
+      const itemId = typeof item === "object" ? item._id || item.id : item;
+      return itemId.toString() === productId.toString();
+    });
   };
 
   // ------------------------------
