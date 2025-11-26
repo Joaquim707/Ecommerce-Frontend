@@ -21,9 +21,8 @@ import StarIcon from "@mui/icons-material/Star";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import RatingsSection from "../src/components/RatingsSection";
-import ShopTheLook from "../src/components/ShopTheLook";
+
 import WishlistIcon from "../src/components/WishlistIcon";
 
 const ProductPage = () => {
@@ -46,6 +45,10 @@ const ProductPage = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [sizeError, setSizeError] = useState("");
   const [colorError, setColorError] = useState("");
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.id; // make sure user exists
+  console.log("USER ID:", userId);
 
   useEffect(() => {
     if (!product) return;
@@ -125,7 +128,38 @@ const ProductPage = () => {
   };
 
   // NEW: Add to cart handler
-  const handleAddToBag = () => {
+  // const handleAddToBag = () => {
+  //   let hasError = false;
+
+  //   if (!selectedSize) {
+  //     setSizeError("Please select a size");
+  //     hasError = true;
+  //   }
+  //   if (product.colorOptions?.length && !selectedColor) {
+  //     setColorError("Please select a color");
+  //     hasError = true;
+  //   }
+
+  //   if (hasError) return;
+
+  //   // You can replace this with your cart API / context logic
+  //   const cartItem = {
+  //     productId: product._id,
+  //     slug: product.slug,
+  //     title: product.title,
+  //     brand: product.brand,
+  //     price: product.price,
+  //     selectedSize,
+  //     selectedColor,
+  //     quantity: 1,
+  //     image: product.images?.[0] || "",
+  //   };
+
+  //   console.log("Add to cart item:", cartItem);
+  //   // e.g. await axios.post("/api/cart", cartItem);
+  // };
+
+  const handleAddToBag = async () => {
     let hasError = false;
 
     if (!selectedSize) {
@@ -139,21 +173,32 @@ const ProductPage = () => {
 
     if (hasError) return;
 
-    // You can replace this with your cart API / context logic
-    const cartItem = {
-      productId: product._id,
-      slug: product.slug,
-      title: product.title,
-      brand: product.brand,
-      price: product.price,
-      selectedSize,
-      selectedColor,
-      quantity: 1,
-      image: product.images?.[0] || "",
-    };
+    try {
+      const token = localStorage.getItem("token");
 
-    console.log("Add to cart item:", cartItem);
-    // e.g. await axios.post("/api/cart", cartItem);
+      const res = await axios.post(
+        "http://localhost:5000/api/cart/add",
+        {
+          productId: product._id,
+          size: selectedSize,
+          color: selectedColor,
+          userId: userId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.data.ok) {
+        alert("Added to Bag!");
+        console.log("CART:", res.data.cart);
+      }
+    } catch (error) {
+      console.log("Add to bag error:", error.response?.data || error);
+      alert(error.response?.data?.message || "Failed to add to bag");
+    }
   };
 
   const {
