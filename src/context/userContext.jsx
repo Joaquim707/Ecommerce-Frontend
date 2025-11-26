@@ -1,43 +1,3 @@
-// // import React, { createContext, useState, useEffect } from "react";
-
-// // export const UserContext = createContext();
-
-// // const UserProvider = ({ children }) => {
-// //   const [user, setUser] = useState(() => {
-// //     // Load from localStorage if available
-// //     const storedUser = localStorage.getItem("user");
-// //     return storedUser ? JSON.parse(storedUser) : null;
-// //   });
-
-// //   // Function to update user data
-// //   const updateUser = (userData) => {
-// //     setUser(userData);
-// //     localStorage.setItem("user", JSON.stringify(userData)); // persist
-// //   };
-
-// //   // Function to clear user data (eg., on logout)
-// //   const clearUser = () => {
-// //     setUser(null);
-// //     localStorage.removeItem("user"); // remove from storage
-// //   };
-
-// //   // Keep state in sync with localStorage (optional safeguard)
-// //   useEffect(() => {
-// //     if (user) {
-// //       localStorage.setItem("user", JSON.stringify(user));
-// //       sessionStorage.setItem("user", JSON.stringify(user));
-// //     }
-// //   }, [user]);
-
-// //   return (
-// //     <UserContext.Provider value={{ user, updateUser, clearUser }}>
-// //       {children}
-// //     </UserContext.Provider>
-// //   );
-// // };
-
-// // export default UserProvider;
-
 // import React, { createContext, useState, useEffect } from "react";
 // import axios from "axios";
 
@@ -439,17 +399,20 @@ const UserProvider = ({ children }) => {
   // ------------------------------
   const fetchCart = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get(`${API_URL}/cart`, {
-        headers: getAuthHeaders(),
+      const res = await axios.get("http://localhost:5000/api/cart", {
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
       });
-      setCart(response.data.items || []);
-      return response.data.items || [];
-    } catch (error) {
-      console.error("Fetch cart error:", error.response?.data || error.message);
-      return [];
-    } finally {
-      setLoading(false);
+      return res.data;
+    } catch (err) {
+      console.error(
+        "Fetch cart error:",
+        err.response?.data || err.message || err
+      );
+      return {
+        ok: false,
+        message: err.response?.data?.message || err.message,
+        error: err.response?.data,
+      };
     }
   };
 
@@ -486,18 +449,40 @@ const UserProvider = ({ children }) => {
   //   }
   // };
 
-  const addToCart = async (productId, size, color, userId) => {
-    try {
-      const response = await axios.post("http://localhost:5000/api/cart/add", {
-        productId,
-        size,
-        color,
-        userId,
-      });
+  // const addToCart = async (productId, size, color, userId) => {
+  //   try {
+  //     const response = await axios.post("http://localhost:5000/api/cart/add", {
+  //       productId,
+  //       size,
+  //       color,
+  //       userId,
+  //     });
 
-      console.log("Cart updated:", response.data);
+  //     console.log("Cart updated:", response.data);
+  //   } catch (err) {
+  //     console.log("Add to cart error:", err);
+  //   }
+  // };
+
+  const addToCart = async (productId, size, color, quantity = 1) => {
+    try {
+      const payload = { productId, size, color, quantity };
+      const res = await axios.post(
+        "http://localhost:5000/api/cart/add",
+        payload,
+        { headers: { Authorization: token ? `Bearer ${token}` : "" } }
+      );
+      return res.data; // { ok: true, cart: [...] } or error
     } catch (err) {
-      console.log("Add to cart error:", err);
+      console.error(
+        "Add to cart error:",
+        err.response?.data || err.message || err
+      );
+      return {
+        ok: false,
+        message: err.response?.data?.message || err.message,
+        error: err.response?.data,
+      };
     }
   };
 
