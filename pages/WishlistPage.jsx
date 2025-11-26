@@ -240,6 +240,92 @@ const WishlistPage = () => {
   };
 
   if (loading) return <Typography>Loading...</Typography>;
+
+  if (!user)
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: "70vh",
+          mt: { xs: 10, sm: 12 },
+          mb: { xs: 0, lg: 20 },
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: { xs: "100%", sm: "600px", md: "750px", lg: "900px" },
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {/* Title */}
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              color: "#3e4152",
+              mb: 1,
+              fontSize: { xs: "18px", sm: "22px" },
+            }}
+          >
+            PLEASE LOG IN
+          </Typography>
+
+          {/* Subtitle */}
+          <Typography
+            sx={{
+              maxWidth: "380px",
+              color: "#7e818c",
+              fontSize: { xs: "13px", sm: "14px" },
+              mb: 4,
+            }}
+          >
+            Login to view items in your wishlist.
+          </Typography>
+
+          {/* Illustration */}
+          <Box sx={{ mb: 4 }}>
+            <img
+              src="/images/wishlist.png"
+              alt="empty wishlist"
+              style={{
+                width: "100%",
+                maxWidth: "150px",
+                opacity: 0.9,
+              }}
+            />
+          </Box>
+
+          {/* Continue Shopping Button */}
+          <Button
+            variant="outlined"
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              borderRadius: "4px",
+              px: { xs: 3, sm: 4 },
+              py: { xs: 1.2, sm: 1.5 },
+              fontSize: { xs: "13px", sm: "14px" },
+              borderColor: "#3d62ff",
+              color: "#3d62ff",
+              "&:hover": {
+                borderColor: "#2948cc",
+                color: "#2948cc",
+              },
+            }}
+            onClick={() => navigate("/login")}
+          >
+            LOGIN
+          </Button>
+        </Box>
+      </Box>
+    );
   if (!user?.wishlist || user.wishlist.length === 0)
     return (
       <Box
@@ -250,6 +336,7 @@ const WishlistPage = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          mb: { xs: 0, lg: 20 },
         }}
       >
         <Box
@@ -327,7 +414,12 @@ const WishlistPage = () => {
     );
 
   return (
-    <Box sx={{ px: { xs: 2, sm: 19, md: 25 }, py: { xs: 2, sm: 3 } }}>
+    <Box
+      sx={{
+        px: { xs: 2, sm: 10, md: 20 },
+        py: { xs: 2, sm: 3 },
+      }}
+    >
       <Typography sx={{ fontSize: "18px", fontWeight: 700 }} mb={3}>
         My Wishlist
         <Box
@@ -345,7 +437,7 @@ const WishlistPage = () => {
             xs={6} // 2 cards per row on mobile
             sm={4} // 3 cards per row on small screens
             md={3} // 4 cards per row on medium screens
-            lg={3} // 4 cards per row on large screens
+            lg={2} // 4 cards per row on large screens
             xl={2} // 6 cards per row on extra large screens
             key={product._id || index}
           >
@@ -363,12 +455,16 @@ const WishlistPage = () => {
               <CardMedia
                 component="img"
                 image={product.images?.[0] || "/images/default.jpeg"}
-                alt={product.title || "Product"}
+                onClick={() =>
+                  navigate(`/product/${product.slug || product._id}`)
+                }
                 sx={{
-                  height: { xs: 180, sm: 200, md: 294 }, // responsive height
+                  cursor: "pointer",
+                  height: { xs: 180, sm: 300, md: 294 }, // responsive height
                   objectFit: "fit",
                   backgroundColor: "#f5f5f5",
                 }}
+                alt={product.title || "Product"}
               />
 
               {/* Product Info */}
@@ -378,10 +474,11 @@ const WishlistPage = () => {
                   fontSize={"16px"}
                   fontWeight={400}
                   color="#282c3f"
-                  sx={{ mb: 0.5 }}
                   title={product.title}
                   width="195px"
                   noWrap
+                  onClick={() => navigate(`/product/${product.slug}`)}
+                  sx={{ mb: 0.5, cursor: "pointer" }}
                 >
                   {product.title || "Untitled Product"}
                 </Typography>
