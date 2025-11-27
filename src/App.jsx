@@ -87,6 +87,7 @@ import Footer from "./components/Footer";
 import WishlistPage from "../pages/WishlistPage";
 import ScrollToTop from "./components/ScrollToTop";
 import LoginPage from "../pages/LoginPage";
+import BagPage from "../pages/BagPage";
 
 const App = () => {
   const location = useLocation();
@@ -123,7 +124,7 @@ const App = () => {
 
         <Route path="/profile" element={<h1>Profile Page</h1>} />
         <Route path="/wishlist" element={<WishlistPage />} />
-        <Route path="/cart" element={<h1>Bag / Cart Page</h1>} />
+        <Route path="/cart" element={<BagPage />} />
       </Routes>
 
       {!hideFooter && <Footer />}
