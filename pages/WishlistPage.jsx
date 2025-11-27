@@ -1002,7 +1002,7 @@ const WishlistPage = () => {
                 }}
                 label="Size *"
               >
-                {selectedProduct?.sizes?.map((size) => (
+                {selectedProduct?.sizeOptions?.map((size) => (
                   <MenuItem key={size} value={size}>
                     {size}
                   </MenuItem>

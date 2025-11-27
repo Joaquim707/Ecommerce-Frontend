@@ -1394,9 +1394,7 @@ const BagPage = () => {
                   <Box
                     component="img"
                     position="relative"
-                    src={
-                      product.images?.[0] || "https://via.placeholder.com/150"
-                    }
+                    src={product.images?.[0] || "/images/default.jpeg"}
                     alt={product.name}
                     sx={{
                       width: 111,
@@ -1904,7 +1902,7 @@ const BagPage = () => {
               label="Size"
             >
               {(
-                selectedItemForChange?.product?.sizes || [
+                selectedItemForChange?.product?.sizeOptions || [
                   "S",
                   "M",
                   "L",
