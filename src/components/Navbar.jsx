@@ -27,8 +27,10 @@ import MegaMenu from "../components/MegaMenu";
 import { CATEGORIES } from "../utils/apiPaths";
 import { NAVBAR_ICONS } from "../data/navbarMenu";
 import NavbarIcons from "./NavbarIcons";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [openSearch, setOpenSearch] = useState(false);
   const [openItems, setOpenItems] = useState({});
   const [subOpenItems, setSubOpenItems] = useState({});
@@ -37,9 +39,17 @@ const Navbar = () => {
   const [categoryLevels, setCategoryLevels] = useState({});
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation(); // 👈 react-router hook to detect path
+  const [searchText, setSearchText] = useState("");
 
   const handleToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleSearch = () => {
+    if (!searchText) return;
+
+    // Navigate to search results page
+    navigate(`/category/${encodeURIComponent(searchText)}`);
   };
 
   // ✅ Fetch categories from API
@@ -207,9 +217,25 @@ const Navbar = () => {
                 maxWidth: "600px",
               }}
             >
-              <SearchIcon sx={{ color: "#6e6e6e", fontSize: 20, ml: 2 }} />
+              <SearchIcon
+                sx={{
+                  color: "#6e6e6e",
+                  fontSize: 20,
+                  ml: 2,
+                  cursor: "pointer",
+                }}
+                onClick={handleSearch}
+              />
+
               <InputBase
                 placeholder="Search for products, brands and more"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
+                  }
+                }}
                 sx={{
                   ml: 1,
                   flex: 1,
