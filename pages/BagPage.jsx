@@ -1332,7 +1332,7 @@ const BagPage = () => {
 
       return true;
     } catch (err) {
-      alert(err.message);
+      console.log(err.message);
       return false;
     }
   };
@@ -1377,7 +1377,14 @@ const BagPage = () => {
       fetchCart();
       alert("Items moved to wishlist successfully!");
     } catch (err) {
-      alert("Failed to move items to wishlist");
+      if (
+        err?.response?.data?.message?.includes("already exists") ||
+        err?.response?.data?.error?.includes("already exists")
+      ) {
+        alert("Item already in wishlist — skipping");
+      } else {
+        alert("Failed to add to wishlist:", err);
+      }
     }
   };
 

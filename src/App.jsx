@@ -88,6 +88,7 @@ import WishlistPage from "../pages/WishlistPage";
 import ScrollToTop from "./components/ScrollToTop";
 import LoginPage from "../pages/LoginPage";
 import BagPage from "../pages/BagPage";
+import AddressPage from "../pages/AddressPage";
 
 const App = () => {
   const location = useLocation();
@@ -109,6 +110,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/address" element={<AddressPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/search" element={<Search />} />
         <Route path="/category/:slug" element={<CategoryProducts />} />
