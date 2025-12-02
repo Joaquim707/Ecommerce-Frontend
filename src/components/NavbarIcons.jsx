@@ -241,6 +241,8 @@ const NavbarIcons = ({ NAVBAR_ICONS }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("selectedAddressId");
+    localStorage.removeItem("orderCartSummary");
+    localStorage.removeItem("selectedCartItems");
     clearUser(); // removes user + token from localStorage & context
     navigate("/");
   };

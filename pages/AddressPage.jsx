@@ -251,6 +251,8 @@ const AddressPage = () => {
   };
 
   const handleCancel = () => {
+    localStorage.removeItem("orderCartSummary");
+    localStorage.removeItem("selectedCartItems");
     navigate("/cart");
   };
 
