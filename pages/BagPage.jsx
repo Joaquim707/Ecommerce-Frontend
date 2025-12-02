@@ -377,49 +377,40 @@ const BagPage = (props) => {
       navigate("/login");
       return;
     }
+    if (selectedItems.size === 0) {
+      alert("Please select items to place order");
+      return;
+    }
 
     try {
       setPlacingOrder(true);
 
-      const res = await fetch("http://localhost:5000/api/cart", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      // Filter cartItems to get only selected items
+      const selectedCartItems = cartItems.filter((item, idx) => {
+        const product = item.productId;
+        if (!product) return false;
+
+        const itemId = `${product._id}-${item.size}-${item.color}-${idx}`;
+        return selectedItems.has(itemId);
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("Failed to fetch cart:", txt);
-        alert("Failed to fetch cart. Try again.");
+      console.log("📌 Selected items being saved:", selectedCartItems);
+
+      if (selectedCartItems.length === 0) {
+        alert("Please select items to place order");
         setPlacingOrder(false);
         return;
       }
 
-      const body = await res.json();
-
-      const cartItems =
-        Array.isArray(body.cart) && body.cart.length
-          ? body.cart
-          : Array.isArray(body.items) && body.items.length
-          ? body.items
-          : Array.isArray(body)
-          ? body
-          : [];
-
-      if (!cartItems.length) {
-        alert("Your cart is empty");
-        setPlacingOrder(false);
-        return;
-      }
-
+      // Calculate totals for selected items only
       let totalMRP = 0;
       let totalAmount = 0;
       let itemsCount = 0;
 
-      cartItems.forEach((item) => {
-        const product = item.product || item.productId || item.productDetails;
+      selectedCartItems.forEach((item) => {
+        const product = item.productId;
         if (!product) return;
+
         const qty = item.quantity ?? 1;
         totalMRP += (product.mrp ?? product.price ?? 0) * qty;
         totalAmount += (product.price ?? 0) * qty;
@@ -434,13 +425,29 @@ const BagPage = (props) => {
         itemsCount,
       };
 
+      // Store only selected items
       localStorage.setItem("orderCartSummary", JSON.stringify(cartSummary));
+      localStorage.setItem(
+        "selectedCartItems",
+        JSON.stringify(selectedCartItems)
+      );
 
       const selectedAddressId = localStorage.getItem("selectedAddressId");
       if (selectedAddressId) {
-        navigate("/payment");
+        navigate("/payment", {
+          state: {
+            cartSummary,
+            selectedItems: selectedCartItems,
+          },
+        });
       } else {
-        navigate("/address", { state: { from: "/payment" } });
+        navigate("/address", {
+          state: {
+            from: "/payment",
+            cartSummary,
+            selectedItems: selectedCartItems,
+          },
+        });
       }
     } catch (err) {
       console.error("Place order (bag) error:", err);

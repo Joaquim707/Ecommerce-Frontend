@@ -240,6 +240,7 @@ const NavbarIcons = ({ NAVBAR_ICONS }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("selectedAddressId");
     clearUser(); // removes user + token from localStorage & context
     navigate("/");
   };

@@ -34,39 +34,107 @@ const AddressPage = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-      // Get selected items from localStorage
-      const selectedItems = JSON.parse(
+      // Get selected items (support two formats: array of keys or array of objects)
+      let selectedItems = JSON.parse(
         localStorage.getItem("selectedCartItems") || "[]"
       );
+
+      // If saved as objects, convert to key format "<productId>-<size>-<color>"
+      if (
+        Array.isArray(selectedItems) &&
+        selectedItems.length > 0 &&
+        typeof selectedItems[0] === "object"
+      ) {
+        selectedItems = selectedItems.map((it) => {
+          const pid =
+            (it.productId && (it.productId._id || it.productId)) ||
+            (it.product && (it.product._id || it.product)) ||
+            it._id ||
+            "";
+          const size = it.size || it.selectedSize || "";
+          const color = it.color || it.selectedColor || "";
+          return `${pid}-${size}-${color}`;
+        });
+      }
+
       setSelectedCartItems(selectedItems);
 
       const response = await fetch("http://localhost:5000/api/cart/", {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
-      const data = await response.json();
+      const ct = response.headers.get("content-type") || "";
+      const raw = await response.text();
+      if (!ct.includes("application/json")) {
+        console.error("Cart API returned non-JSON:", raw);
+        if (response.status === 401) {
+          navigate("/login");
+          return;
+        }
+        throw new Error(
+          "Cart service returned unexpected response. Is API running and are you authenticated?"
+        );
+      }
+      const data = JSON.parse(raw);
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to load cart");
       }
 
-      const allItems = data.items || [];
+      const allItems =
+        Array.isArray(data.items) && data.items.length
+          ? data.items
+          : Array.isArray(data.cart) && data.cart.length
+          ? data.cart
+          : Array.isArray(data)
+          ? data
+          : [];
 
-      // Filter items based on selection
-      const items =
-        selectedItems.length > 0
-          ? allItems.filter((item, idx) => {
-              const itemId = `${item.productId._id}-${item.size}-${item.color}-${idx}`;
-              return selectedItems.includes(itemId);
-            })
-          : allItems;
+      console.log("Fetched Cart Items (normalized):", allItems);
+      console.log("Selected items (normalized):", selectedItems);
 
-      if (items.length === 0) {
-        alert("No items selected. Redirecting to bag...");
-        navigate("/bag");
+      let items = allItems;
+      if (Array.isArray(selectedItems) && selectedItems.length > 0) {
+        const selSet = new Set(selectedItems);
+        items = allItems.filter((item) => {
+          const pid =
+            (item.productId && (item.productId._id || item.productId)) ||
+            (item.product && (item.product._id || item.product)) ||
+            item.productId ||
+            item.product ||
+            item._id ||
+            "";
+
+          const size = item.size || item.selectedSize || "";
+          const color = item.color || item.selectedColor || "";
+
+          const key = `${pid}-${size}-${color}`;
+          const keyNoColor = `${pid}-${size}-`;
+          const keyNoSize = `${pid}--${color}`;
+          const keyJustPid = `${pid}--`;
+
+          return (
+            selSet.has(key) ||
+            selSet.has(keyNoColor) ||
+            selSet.has(keyNoSize) ||
+            selSet.has(keyJustPid) ||
+            // also allow matching by product id alone
+            selSet.has(`${pid}`)
+          );
+        });
+      }
+
+      if (!items || items.length === 0) {
+        alert("No items selected. Redirecting to cart...");
+        navigate("/cart");
         return;
       }
 
@@ -76,18 +144,19 @@ const AddressPage = () => {
       let itemsCount = 0;
 
       items.forEach((item) => {
-        if (item.productId) {
-          const itemMRP =
-            (item.productId.mrp || item.productId.price) * item.quantity;
-          const itemPrice = item.productId.price * item.quantity;
-
-          totalMRP += itemMRP;
-          totalAmount += itemPrice;
-          itemsCount += item.quantity;
-        }
+        const product =
+          item.productId && item.productId.price
+            ? item.productId
+            : item.product || item.productDetails || {};
+        const qty = item.quantity || 1;
+        const mrp = product.mrp ?? product.price ?? 0;
+        const price = product.price ?? mrp;
+        totalMRP += mrp * qty;
+        totalAmount += price * qty;
+        itemsCount += qty;
       });
 
-      const discount = totalMRP - totalAmount;
+      const discount = Math.max(0, totalMRP - totalAmount);
 
       setCartSummary({
         totalMRP,
@@ -100,7 +169,7 @@ const AddressPage = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching cart:", error);
-      alert("Failed to load cart data");
+      alert(error.message || "Failed to load cart data");
       setLoading(false);
     }
   };
@@ -182,7 +251,7 @@ const AddressPage = () => {
   };
 
   const handleCancel = () => {
-    navigate("/bag");
+    navigate("/cart");
   };
 
   if (loading) {

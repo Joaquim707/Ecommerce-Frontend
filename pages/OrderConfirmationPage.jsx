@@ -250,7 +250,6 @@ const OrderConfirmationPage = () => {
           }
         );
         setOrder(res.data.order);
-        console.log("📌 FETCHED ORDER DATA:", res.data.order);
       } catch (err) {
         console.error(err);
       } finally {
@@ -329,27 +328,26 @@ const OrderConfirmationPage = () => {
         <List>
           {items.map((item) => (
             <ListItem key={item.productId._id} sx={{ py: 1, px: 0 }}>
-              <Grid container alignItems="center" spacing={2}>
+              <Grid container alignItems="center" spacing={7}>
                 <Grid item>
                   <Box
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: 150,
+                      height: 150,
                       border: "1px solid #e0e0e0",
-                      borderRadius: 1,
                       overflow: "hidden",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
+                      justifyContent: "space-between",
                     }}
                   >
                     <img
-                      src={item.productId.images}
-                      alt={item.productId.name}
+                      src={item.image || "/images/default.jpeg"}
+                      alt={item.name || "Product Image"}
                       style={{
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        objectFit: "fit",
                       }}
                     />
                   </Box>
@@ -377,40 +375,46 @@ const OrderConfirmationPage = () => {
         <Typography variant="h6" gutterBottom>
           Pricing Summary
         </Typography>
-        <Table>
+        <Table sx={{ mb: 3 }}>
           <TableBody>
             <TableRow>
               <TableCell>Total MRP</TableCell>
-              <TableCell>₹{pricing.totalMRP}</TableCell>
+              <TableCell sx={{ textAlign: "right", pr: 6 }}>
+                ₹{pricing.totalMRP}
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Total Discount</TableCell>
-              <TableCell>- ₹{pricing.totalDiscount}</TableCell>
+              <TableCell sx={{ textAlign: "right", pr: 6 }}>
+                - ₹{pricing.totalDiscount}
+              </TableCell>
             </TableRow>
             {pricing.couponDiscount > 0 && (
               <TableRow>
                 <TableCell>Coupon Discount</TableCell>
-                <TableCell>- ₹{pricing.couponDiscount}</TableCell>
+                <TableCell sx={{ textAlign: "right", pr: 6 }}>
+                  - ₹{pricing.couponDiscount}
+                </TableCell>
               </TableRow>
             )}
             {pricing.donation > 0 && (
               <TableRow>
                 <TableCell>Donation</TableCell>
-                <TableCell>₹{pricing.donation}</TableCell>
+                <TableCell sx={{ textAlign: "right", pr: 6 }}>
+                  ₹{pricing.donation}
+                </TableCell>
               </TableRow>
             )}
             <TableRow>
               <TableCell>
                 <strong>Total Amount</strong>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ textAlign: "right", pr: 6 }}>
                 <strong>₹{pricing.totalAmount}</strong>
               </TableCell>
             </TableRow>
           </TableBody>
         </Table>
-
-        <Divider sx={{ my: 4 }} />
 
         {/* Payment Info */}
         <Typography variant="h6" gutterBottom>
