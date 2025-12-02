@@ -35,6 +35,7 @@ import {
 import { Link } from "react-router-dom";
 
 const BagPage = (props) => {
+  const token = localStorage.getItem("token");
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -60,6 +61,10 @@ const BagPage = (props) => {
   const [placingOrder, setPlacingOrder] = useState(false);
 
   useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     fetchCart();
   }, []);
 
@@ -477,6 +482,42 @@ const BagPage = (props) => {
     );
   }
 
+  if (!token) {
+    return (
+      <Box
+        sx={{
+          minHeight: "80vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box sx={{ textAlign: "center", maxWidth: 400, px: 2 }}>
+          <Box component="img" position="relative" src={"/images/Bag.png"} />
+          <Typography sx={{ fontWeight: 600, mb: 1, fontSize: "20px" }}>
+            Please Log In
+          </Typography>
+          <Typography color="text.secondary" sx={{ mb: 3 }}>
+            Login to view items in your bag.
+          </Typography>
+          <Button
+            variant="contained"
+            href="/login"
+            sx={{
+              border: "1px solid #ff3f6c",
+              color: "#ff3f6c",
+              bgcolor: "transparent",
+              px: 4,
+              py: 1.5,
+            }}
+          >
+            LOGIN
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
+
   if (error) {
     return (
       <Box
@@ -507,7 +548,7 @@ const BagPage = (props) => {
     return (
       <Box
         sx={{
-          minHeight: "100vh",
+          minHeight: "80vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -525,8 +566,9 @@ const BagPage = (props) => {
             variant="contained"
             href="/wishlist"
             sx={{
-              bgcolor: "#ff3f6c",
-              "&:hover": { bgcolor: "#e63960" },
+              border: "1px solid #ff3f6c",
+              color: "#ff3f6c",
+              bgcolor: "transparent",
               px: 4,
               py: 1.5,
             }}
