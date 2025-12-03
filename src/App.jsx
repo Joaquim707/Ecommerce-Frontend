@@ -88,6 +88,9 @@ import WishlistPage from "../pages/WishlistPage";
 import ScrollToTop from "./components/ScrollToTop";
 import LoginPage from "../pages/LoginPage";
 import BagPage from "../pages/BagPage";
+import AddressPage from "../pages/AddressPage";
+import PaymentPage from "../pages/PaymentPage";
+import OrderConfirmationPage from "../pages/OrderConfirmationPage";
 
 const App = () => {
   const location = useLocation();
@@ -109,6 +112,8 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/address" element={<AddressPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/search" element={<Search />} />
         <Route path="/category/:slug" element={<CategoryProducts />} />
@@ -125,6 +130,11 @@ const App = () => {
         <Route path="/profile" element={<h1>Profile Page</h1>} />
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/cart" element={<BagPage />} />
+
+        <Route
+          path="/order-confirmation/:orderId"
+          element={<OrderConfirmationPage />}
+        />
       </Routes>
 
       {!hideFooter && <Footer />}

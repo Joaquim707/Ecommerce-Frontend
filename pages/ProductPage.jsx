@@ -48,7 +48,6 @@ const ProductPage = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id; // make sure user exists
-  console.log("USER ID:", userId);
 
   useEffect(() => {
     if (!product) return;
